@@ -12,12 +12,12 @@
     <PackageVersion Include="Xabe.FFmpeg.Downloader" Version="6.0.1" />
   </ItemGroup>
   <ItemGroup Label="Common">
-    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.10.0.116381"/>
+    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.11.0.117924"/>
   </ItemGroup>
   <ItemGroup Label="Testing">
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageVersion Include="Moq" Version="4.20.72" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.0" />
-    <PackageVersion Include="xunit.v3" Version="2.0.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.1" />
+    <PackageVersion Include="xunit.v3" Version="2.0.3" />
   </ItemGroup>
 </Project>
