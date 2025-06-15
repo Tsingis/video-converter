@@ -1,4 +1,5 @@
 {
   "dotnet.defaultSolution": "VideoConverter.slnx",
+  "dotnet.testWindow.useTestingPlatformProtocol": true,
   "editor.formatOnSave": true
 }
