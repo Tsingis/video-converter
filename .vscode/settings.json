@@ -1,5 +1,4 @@
 {
-    "dotnet-test-explorer.testProjectPath": "Tests/*/*Tests.csproj",
-    "dotnet-test-explorer.treeMode": "flat",
-    "editor.formatOnSave": true
+  "dotnet.defaultSolution": "VideoConverter.slnx",
+  "editor.formatOnSave": true
 }
