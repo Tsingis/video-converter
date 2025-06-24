@@ -4,8 +4,7 @@ on:
     branches:
       - main
     paths:
-      - "VideoConverter/**"
-      - "FFmpegDownloader/**"
+      - "src/**"
       - "**.props"
       - "global.json"
       - ".github/workflows/release.yml"

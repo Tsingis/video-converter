@@ -24,7 +24,7 @@ jobs:
       - name: Build app
         run: dotnet build --configuration Release --no-restore
       - name: Download FFmpeg executables
-        run: dotnet run --project FFmpegDownloader $GITHUB_WORKSPACE
+        run: dotnet run --project src/FFmpegDownloader $GITHUB_WORKSPACE
       - name: Set downloaded executables to PATH
         run: echo $GITHUB_WORKSPACE >> $GITHUB_PATH
         shell: bash

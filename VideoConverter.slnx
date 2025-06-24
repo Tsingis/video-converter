@@ -1,5 +1,5 @@
 <Solution>
-  <Project Path="FFmpegDownloader/FFmpegDownloader.csproj" />
-  <Project Path="Tests/Tests.csproj" />
-  <Project Path="VideoConverter/VideoConverter.csproj" />
+  <Project Path="src/FFmpegDownloader/FFmpegDownloader.csproj" />
+  <Project Path="tests/UnitTests/UnitTests.csproj" />
+  <Project Path="src/VideoConverter/VideoConverter.csproj" />
 </Solution>

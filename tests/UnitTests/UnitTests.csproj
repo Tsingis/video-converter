@@ -8,7 +8,7 @@
     <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\VideoConverter\VideoConverter.csproj" />
+    <ProjectReference Include="..\..\src\VideoConverter\VideoConverter.csproj" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Moq" />
     <PackageReference Include="xunit.runner.visualstudio">
@@ -19,6 +19,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Testvideos\*" CopyToOutputDirectory="Always" />
-    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

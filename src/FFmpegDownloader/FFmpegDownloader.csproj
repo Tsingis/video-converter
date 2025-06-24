@@ -1,12 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <RootNamespace>VideoConverter</RootNamespace>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <RootNamespace>FFmpeg.Downloader</RootNamespace>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PlatformTarget>anycpu</PlatformTarget>
     <PublishSingleFile>true</PublishSingleFile>
-    <PublishDir>..\publish</PublishDir>
+    <PublishDir>..\..\publish</PublishDir>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -14,10 +13,7 @@
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="CommandLineParser"/>
-    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Xabe.FFmpeg.Downloader" />
     <PackageReference Include="Newtonsoft.Json" />
-    <PackageReference Include="Xabe.FFmpeg" />
-    <Content Include="config.json" CopyToOutputDirectory="Always" />
   </ItemGroup>
 </Project>
