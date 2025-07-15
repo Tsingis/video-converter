@@ -18,6 +18,6 @@
     <PackageVersion Include="xunit.v3" Version="3.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.12.0.118525" />
+    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.13.0.120203" />
   </ItemGroup>
 </Project>
