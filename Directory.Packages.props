@@ -5,7 +5,7 @@
   </PropertyGroup>
   <ItemGroup Label="Application">
     <PackageVersion Include="CommandLineParser" Version="2.9.1" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.8" />
     <!-- To address transitive vulnerability -->
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="Xabe.FFmpeg" Version="6.0.1" />
