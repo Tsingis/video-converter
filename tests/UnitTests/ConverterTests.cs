@@ -1,37 +1,39 @@
 using VideoConverter;
-using Xunit;
 
-namespace Tests;
+namespace UnitTests;
 
+[NotInParallel]
 public class ConverterTests
 {
     const string TestVideoPath = "Testvideos";
 
-    [Theory]
-    [InlineData("example_mp4.mp4", VideoFormat.Webm)]
-    [InlineData("example_mp4.mp4", VideoFormat.Gif)]
-    [InlineData("example_webm.webm", VideoFormat.Mp4)]
-    [InlineData("example_webm.webm", VideoFormat.Gif)]
-    [InlineData("example_gif.gif", VideoFormat.Mp4)]
-    public async Task TestConversion(string inputFile, string outputFormat)
+    [Test]
+    [Arguments("example_mp4.mp4", VideoFormat.Webm)]
+    [Arguments("example_mp4.mp4", VideoFormat.Gif)]
+    [Arguments("example_webm.webm", VideoFormat.Mp4)]
+    [Arguments("example_webm.webm", VideoFormat.Gif)]
+    [Arguments("example_gif.gif", VideoFormat.Mp4)]
+    public async Task ConversionSucceeds(string inputFile, string outputFormat)
     {
-        var inputFilePath = Path.Join(TestVideoPath, inputFile);
+        var inputFilePath = Path.Join(Environment.CurrentDirectory, TestVideoPath, inputFile);
         var outputFileDir = Path.Join(Environment.CurrentDirectory, TestVideoPath);
 
-        var outputFilePath = await Converter.ConvertAsync(inputFilePath, outputFileDir, outputFormat).ConfigureAwait(true);
+        var outputFilePath = await Converter
+            .ConvertAsync(inputFilePath, outputFileDir, outputFormat)
+            .ConfigureAwait(false);
 
-        Assert.True(File.Exists(outputFilePath));
+        await Assert.That(File.Exists(outputFilePath)).IsTrue();
         File.Delete(outputFilePath);
     }
 
-    [Theory]
-    [InlineData("mp4", true)]
-    [InlineData("webm", true)]
-    [InlineData("gif", true)]
-    [InlineData("wmv", false)]
-    public void TestSupportedVideoFormat(string format, bool isSupported)
+    [Test]
+    [Arguments("mp4", true)]
+    [Arguments("webm", true)]
+    [Arguments("gif", true)]
+    [Arguments("wmv", false)]
+    public async Task IsSupportedVideoFormat(string format, bool expected)
     {
         var result = VideoFormat.IsSupportedVideoFormat(format);
-        Assert.Equal(isSupported, result);
+        await Assert.That(result).IsEqualTo(expected);
     }
 }

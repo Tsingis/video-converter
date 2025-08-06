@@ -117,17 +117,17 @@ public static class Program
             string output = string.Empty;
             if (Uri.IsWellFormedUriString(_inputFile, UriKind.RelativeOrAbsolute))
             {
-                var downloadPath = await Utility.DownloadFileAsync(new Uri(_inputFile)).ConfigureAwait(true);
+                var downloadPath = await Utility.DownloadFileAsync(new Uri(_inputFile)).ConfigureAwait(false);
 
                 if (File.Exists(downloadPath))
                 {
-                    output = await Converter.ConvertAsync(downloadPath, _outputDir, _outputFormat).ConfigureAwait(true);
+                    output = await Converter.ConvertAsync(downloadPath, _outputDir, _outputFormat).ConfigureAwait(false);
                     File.Delete(downloadPath);
                 }
             }
             else
             {
-                output = await Converter.ConvertAsync(_inputFile, _outputDir, _outputFormat).ConfigureAwait(true);
+                output = await Converter.ConvertAsync(_inputFile, _outputDir, _outputFormat).ConfigureAwait(false);
             }
 
             Console.WriteLine($"Successfully conversed file {output}");
