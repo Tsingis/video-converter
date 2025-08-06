@@ -13,12 +13,12 @@ public static class Utility
 
             using (var client = HttpClientFactory())
             {
-                var res = await client.GetAsync(url, HttpCompletionOption.ResponseContentRead).ConfigureAwait(true);
+                var res = await client.GetAsync(url, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
                 if (res.IsSuccessStatusCode)
                 {
                     using (var fs = new FileStream(downloadPath, FileMode.Create))
                     {
-                        await res.Content.CopyToAsync(fs).ConfigureAwait(true);
+                        await res.Content.CopyToAsync(fs).ConfigureAwait(false);
                         return downloadPath;
                     }
                 }

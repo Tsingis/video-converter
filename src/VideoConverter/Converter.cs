@@ -25,12 +25,12 @@ public static class Converter
         {
             IConversion conversion = outputFormat switch
             {
-                VideoFormat.Mp4 => await FFmpeg.Conversions.FromSnippet.ToMp4(inputFilePath, outputFilePath).ConfigureAwait(true),
-                VideoFormat.Webm => await FFmpeg.Conversions.FromSnippet.ToWebM(inputFilePath, outputFilePath).ConfigureAwait(true),
-                VideoFormat.Gif => await FFmpeg.Conversions.FromSnippet.ToGif(inputFilePath, outputFilePath, 1).ConfigureAwait(true),
+                VideoFormat.Mp4 => await FFmpeg.Conversions.FromSnippet.ToMp4(inputFilePath, outputFilePath).ConfigureAwait(false),
+                VideoFormat.Webm => await FFmpeg.Conversions.FromSnippet.ToWebM(inputFilePath, outputFilePath).ConfigureAwait(false),
+                VideoFormat.Gif => await FFmpeg.Conversions.FromSnippet.ToGif(inputFilePath, outputFilePath, 1).ConfigureAwait(false),
                 _ => throw new VideoFormatException("Unsupported video format."),
             };
-            await conversion.Start().ConfigureAwait(true);
+            await conversion.Start().ConfigureAwait(false);
             return outputFilePath;
         }
         catch (FFmpegNotFoundException)

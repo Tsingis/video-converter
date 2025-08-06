@@ -2,17 +2,17 @@ using System.Net;
 using Moq;
 using Moq.Protected;
 using VideoConverter.Common;
-using Xunit;
 
-namespace Tests;
+namespace UnitTests;
 
 public class UtilityTests
 {
-    [Fact]
-    public async Task TestDownloadOk()
+    [Test]
+    public async Task DownloadSucceeds()
     {
         var url = new Uri("https://someurl.com/video.mp4");
         var content = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+
         var mockHandler = new Mock<HttpClientHandler>();
 
         var responseMessage = new HttpResponseMessage
@@ -31,21 +31,20 @@ public class UtilityTests
         using var httpClient = new HttpClient(mockHandler.Object);
         Utility.HttpClientFactory = () => httpClient;
 
-        var downloadedFile = await Utility.DownloadFileAsync(url).ConfigureAwait(true);
+        var downloadedFile = await Utility.DownloadFileAsync(url).ConfigureAwait(false);
 
-        Assert.True(File.Exists(downloadedFile));
+        await Assert.That(File.Exists(downloadedFile)).IsTrue();
 
-        var downloadedContent = await File.ReadAllBytesAsync(downloadedFile, TestContext.Current.CancellationToken).ConfigureAwait(true);
-        Assert.Equal(content, downloadedContent);
+        var downloadedContent = await File
+            .ReadAllBytesAsync(downloadedFile, TestContext.Current.CancellationToken).ConfigureAwait(false);
+        await Assert.That(downloadedContent).Satisfies(x => x.SequenceEqual(content), y => y.IsTrue());
 
         File.Delete(downloadedFile);
-
         responseMessage.Dispose();
     }
 
-
-    [Fact]
-    public async Task TestDownload_Fail()
+    [Test]
+    public async Task DownloadFails()
     {
         var url = new Uri("https://someurl.com/video.mp4");
         var mockHandler = new Mock<HttpClientHandler>();
@@ -65,16 +64,14 @@ public class UtilityTests
         using var httpClient = new HttpClient(mockHandler.Object);
         Utility.HttpClientFactory = () => httpClient;
 
-        var exception = await Assert
-            .ThrowsAsync<HttpRequestException>(
-                async () => await Utility.DownloadFileAsync(url).ConfigureAwait(true))
-            .ConfigureAwait(true);
+        var exception = await Assert.That(() => Utility.DownloadFileAsync(url))
+            .Throws<HttpRequestException>();
 
-        Assert.Equal("Download failed", exception.Message);
-        Assert.IsType<HttpRequestException>(exception.InnerException);
-        Assert.Contains("Status code: NotFound", exception.InnerException.Message, StringComparison.InvariantCulture);
+        await Assert.That(exception.Message).IsEqualTo("Download failed");
+        await Assert.That(exception.InnerException).IsTypeOf<HttpRequestException>();
+        await Assert.That(exception.InnerException?.Message)
+            .Contains("Status code: NotFound", StringComparison.InvariantCulture);
 
         responseMessage.Dispose();
     }
-
 }
