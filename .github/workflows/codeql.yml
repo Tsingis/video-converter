@@ -7,7 +7,7 @@ on:
       - "**.cs"
       - "**.csproj"
       - "**.props"
-      - ".github/workflows/codeql.yml"
+      - ".github/workflows/**/*.yml"
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
