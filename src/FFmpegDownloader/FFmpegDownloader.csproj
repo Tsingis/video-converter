@@ -14,6 +14,5 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Xabe.FFmpeg.Downloader" />
-    <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
 </Project>
