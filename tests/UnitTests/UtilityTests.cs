@@ -5,6 +5,7 @@ using VideoConverter.Common;
 
 namespace UnitTests;
 
+[NotInParallel]
 public class UtilityTests
 {
     [Test]
