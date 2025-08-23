@@ -29,3 +29,9 @@ Configuration:
 Tools used:
 
 -   .NET SDK
+
+App
+
+-   Download FFmpeg execs `dotnet run --project src\FFmpegDownloader\FFmpegDownloader.csproj -- {download-path}`
+-   Launch `dotnet run --project src\VideoConverter\VideoConverter.csproj`
+-   Publish `dotnet publish`
