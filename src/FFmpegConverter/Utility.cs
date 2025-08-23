@@ -1,4 +1,4 @@
-namespace VideoConverter.Common;
+namespace FFmpegConverter;
 
 public static class Utility
 {

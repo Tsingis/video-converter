@@ -1,4 +1,6 @@
 <Solution>
+  <Folder Name="/src/" />
+  <Project Path="src/FFmpegConverter/FFmpegConverter.csproj" />
   <Project Path="src/FFmpegDownloader/FFmpegDownloader.csproj" />
   <Project Path="tests/UnitTests/UnitTests.csproj" />
   <Project Path="src/VideoConverter/VideoConverter.csproj" />

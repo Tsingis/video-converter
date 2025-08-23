@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace VideoConverter;
+namespace FFmpegConverter;
 
 public static class VideoFormat
 {

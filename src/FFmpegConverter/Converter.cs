@@ -1,10 +1,9 @@
 using System.Globalization;
-using VideoConverter.Common;
-using VideoConverter.Exceptions;
+using FFmpegConverter.Exceptions;
 using Xabe.FFmpeg;
 using Xabe.FFmpeg.Exceptions;
 
-namespace VideoConverter;
+namespace FFmpegConverter;
 
 public static class Converter
 {

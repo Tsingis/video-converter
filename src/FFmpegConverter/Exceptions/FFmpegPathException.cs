@@ -1,4 +1,5 @@
-namespace VideoConverter.Exceptions;
+namespace FFmpegConverter.Exceptions;
+
 
 public class FFmpegPathException : Exception
 {

@@ -16,7 +16,11 @@
   <ItemGroup>
     <PackageReference Include="CommandLineParser"/>
     <PackageReference Include="Microsoft.Extensions.Hosting" />
-    <PackageReference Include="Xabe.FFmpeg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FFmpegConverter\FFmpegConverter.csproj"/>
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="config.json" CopyToOutputDirectory="Always" />
   </ItemGroup>
 </Project>

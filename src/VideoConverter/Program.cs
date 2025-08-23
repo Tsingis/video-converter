@@ -1,7 +1,7 @@
 ﻿using CommandLine;
+using FFmpegConverter;
+using FFmpegConverter.Exceptions;
 using Microsoft.Extensions.Configuration;
-using VideoConverter.Common;
-using VideoConverter.Exceptions;
 
 namespace VideoConverter;
 

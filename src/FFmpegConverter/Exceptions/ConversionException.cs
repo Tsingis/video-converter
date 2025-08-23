@@ -1,4 +1,4 @@
-namespace VideoConverter.Exceptions;
+namespace FFmpegConverter.Exceptions;
 
 public class ConversionException : Exception
 {
