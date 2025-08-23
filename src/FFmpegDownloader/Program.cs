@@ -14,6 +14,6 @@ public static class Program
 
     private async static Task DownloadFFmpegExecutables(string destinationPath)
     {
-        await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Full, destinationPath).ConfigureAwait(false);
+        await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, destinationPath).ConfigureAwait(false);
     }
 }

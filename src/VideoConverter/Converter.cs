@@ -8,7 +8,7 @@ namespace VideoConverter;
 
 public static class Converter
 {
-    private static readonly string[] _executables = ["ffmpeg.exe", "ffprobe.exe", "ffplay.exe"];
+    private static readonly string[] _executables = ["ffmpeg.exe", "ffprobe.exe"];
     private static readonly string _executablesPath = Environment.CurrentDirectory;
 
     public static async Task<string> ConvertAsync(string inputFilePath, string outputFileDir, string outputFormat)
