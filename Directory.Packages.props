@@ -5,7 +5,7 @@
   </PropertyGroup>
   <ItemGroup Label="Application">
     <PackageVersion Include="CommandLineParser" Version="2.9.1" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.8" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.9" />
     <PackageVersion Include="Xabe.FFmpeg" Version="6.0.2" />
     <PackageVersion Include="Xabe.FFmpeg.Downloader" Version="6.0.2" />
   </ItemGroup>
