@@ -58,6 +58,9 @@ jobs:
         with:
           name: ${{ matrix.os }}-package
           path: ${{ env.PACKAGE_PATH }}
+          overwrite: true
+          retention-days: 1
+          if-no-files-found: error
   release:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
