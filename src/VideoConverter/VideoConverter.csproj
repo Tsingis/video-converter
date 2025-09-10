@@ -3,8 +3,9 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>VideoConverter</RootNamespace>
     <ApplicationIcon>icon.ico</ApplicationIcon>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <RuntimeIdentifiers>win-x64;linux-x64;</RuntimeIdentifiers>
     <PlatformTarget>anycpu</PlatformTarget>
+    <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
     <PublishDir>..\..\publish</PublishDir>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>

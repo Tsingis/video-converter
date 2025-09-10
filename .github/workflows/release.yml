@@ -1,5 +1,13 @@
 name: release
 on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "src/**"
+      - "**.props"
+      - "global.json"
+      - ".github/workflows/release.yml"
   push:
     branches:
       - main
@@ -12,33 +20,70 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-env:
-  TAG: v1.0.0
-  FILE: video-converter.zip
-  TITLE: Video Converter
-  NOTES: Download latest version
 jobs:
-  release:
-    runs-on: windows-latest
-    permissions:
-      contents: write
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
     steps:
       - uses: actions/checkout@v5
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
           global-json-file: ./global.json
-      - name: Publish
-        run: |
-          dotnet publish --configuration Release
-      - name: Package
-        shell: pwsh
-        run: Compress-Archive -Path ./publish/* -DestinationPath $env:FILE -Force
-      - name: Release
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Publish Windows
+        if: matrix.os == 'windows-latest'
         shell: pwsh
         run: |
-          gh release delete "$env:TAG" --yes --cleanup-tag
-          gh release create "$env:TAG" --latest --title "$env:TITLE" --notes "$env:NOTES"
-          gh release upload "$env:TAG" "$env:FILE" --clobber
+          $RID = "win-x64"
+          $OUT = "video-converter-win.zip"
+          dotnet publish -c Release -r $RID
+          Compress-Archive -Path ./publish/* -DestinationPath $OUT -Force
+          echo "PACKAGE_PATH=$OUT" >> $env:GITHUB_ENV
+      - name: Publish Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          RID=linux-x64
+          OUT=video-converter-linux.tar.gz
+          dotnet publish -c Release -r $RID
+          tar -czvf $OUT -C ./publish .
+          echo "PACKAGE_PATH=$OUT" >> $GITHUB_ENV
+      - name: Upload artifacts
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.os }}-package
+          path: ${{ env.PACKAGE_PATH }}
+  release:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: build
+    env:
+      TAG: v1.0.0
+      TITLE: Video Converter
+      NOTES: Download latest version
+    steps:
+      - uses: actions/checkout@v5
+      - name: Download artifacts
+        uses: actions/download-artifact@v5
+        with:
+          path: ./packages
+      - name: Create release
+        shell: bash
+        run: |
+          gh release delete "$TAG" --yes --cleanup-tag || true
+          gh release create "$TAG" --latest --title "$TITLE" --notes "$NOTES"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload packages
+        shell: bash
+        run: |
+          for f in ./packages/*/*; do
+            gh release upload "$TAG" "$f" --clobber
+          done
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
