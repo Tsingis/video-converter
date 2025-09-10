@@ -24,11 +24,13 @@ jobs:
       matrix:
         language: ["csharp", "actions"]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
       - name: Autobuild
+        if: matrix.language == 'csharp'
         uses: github/codeql-action/autobuild@v3
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
