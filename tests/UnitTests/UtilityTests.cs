@@ -69,9 +69,8 @@ public class UtilityTests
             .Throws<HttpRequestException>();
 
         await Assert.That(exception.Message).IsEqualTo("Download failed");
-        await Assert.That(exception.InnerException).IsTypeOf<HttpRequestException>();
-        await Assert.That(exception.InnerException?.Message)
-            .Contains("Status code: NotFound", StringComparison.InvariantCulture);
+        await Assert.That(exception.InnerException).IsOfType(typeof(HttpRequestException));
+        await Assert.That(exception.InnerException.Message).Contains("Status code: NotFound");
 
         responseMessage.Dispose();
     }
