@@ -36,8 +36,10 @@ public class UtilityTests
 
         await Assert.That(File.Exists(downloadedFile)).IsTrue();
 
+        var ct = TestContext.Current.Execution.CancellationToken;
+
         var downloadedContent = await File
-            .ReadAllBytesAsync(downloadedFile, TestContext.Current.CancellationToken).ConfigureAwait(false);
+            .ReadAllBytesAsync(downloadedFile, ct).ConfigureAwait(false);
         await Assert.That(downloadedContent).Satisfies(x => x.SequenceEqual(content), y => y.IsTrue());
 
         File.Delete(downloadedFile);
