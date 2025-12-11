@@ -29,6 +29,7 @@ jobs:
         uses: github/codeql-action/init@cf1bb45a277cb3c205638b2cd5c984db1c46a412 # v4.31.7
         with:
           languages: ${{ matrix.language }}
+          analysis-kinds: code-scanning,code-quality
       - name: Autobuild
         if: matrix.language == 'csharp'
         uses: github/codeql-action/autobuild@cf1bb45a277cb3c205638b2cd5c984db1c46a412 # v4.31.7
