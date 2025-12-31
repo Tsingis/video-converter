@@ -1,7 +1,7 @@
-﻿using CommandLine;
-using FFmpegConverter;
+﻿using FFmpegConverter;
 using FFmpegConverter.Exceptions;
 using Microsoft.Extensions.Configuration;
+using System.CommandLine;
 
 namespace VideoConverter;
 
@@ -41,22 +41,59 @@ public static class Program
                 input = input.Insert(0, "-i");
             }
 
-            var options = input.Split(" ", StringSplitOptions.RemoveEmptyEntries);
-            using var parser = new Parser(with => with.HelpWriter = null);
-            var parserResult = parser.ParseArguments<ConverterOptions>(options);
-            parserResult.WithParsed(opt =>
-                {
-                    var exitCode = HandleOptions(opt);
-                    if (exitCode != ExitCode.Error)
-                    {
-                        HandleConvert().Wait();
-                    }
-                });
-            parserResult.WithNotParsed(err =>
+            var args = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            var inputOption = new Option<string>("-i")
             {
-                var help = ConverterOptions.HandleError(parserResult);
-                Console.WriteLine(help);
-            });
+                Required = true,
+                Description = "The input file to convert."
+            };
+
+            var formatOption = new Option<string>("-f", "--format")
+            {
+                Required = false,
+                Description = "Format for the converted output file."
+            };
+
+            var outputOption = new Option<string>("-o", "--output")
+            {
+                Required = false,
+                Description = "Output path for the converted file."
+            };
+
+            var root = new RootCommand
+            {
+                inputOption,
+                formatOption,
+                outputOption
+            };
+
+            var parseResult = root.Parse(args);
+            if (parseResult.Errors.Count > 0)
+            {
+                foreach (var err in parseResult.Errors)
+                {
+                    Console.Error.WriteLine(err.Message);
+                }
+                continue;
+            }
+
+            var inFile = parseResult.GetValue(inputOption);
+            var format = parseResult.GetValue(formatOption);
+            var outputPath = parseResult.GetValue(outputOption);
+
+            var optionsObj = new ConverterOptions
+            {
+                InputFile = inFile,
+                OutputFormat = format,
+                OutputPath = outputPath
+            };
+
+            var exitCode = HandleOptions(optionsObj);
+            if (exitCode != ExitCode.Error)
+            {
+                HandleConvert().Wait();
+            }
         }
     }
 
