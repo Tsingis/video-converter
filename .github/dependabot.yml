@@ -17,6 +17,9 @@ updates:
     cooldown:
       default-days: 1
     groups:
+      microsoft:
+        patterns:
+          - "Microsoft.Extensions.*"
       ffmpeg:
         patterns:
           - "Xabe.FFmpeg"

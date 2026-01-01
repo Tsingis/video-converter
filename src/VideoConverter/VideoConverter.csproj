@@ -16,7 +16,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.CommandLine"/>
-    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FFmpegConverter\FFmpegConverter.csproj"/>
