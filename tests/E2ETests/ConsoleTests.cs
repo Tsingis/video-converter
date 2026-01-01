@@ -9,7 +9,7 @@ public class ConsoleTests
     [Test]
     public async Task QuitSucceeds()
     {
-        var psi = CreateProcessStartInfo();
+        var psi = GlobalSetup.CreateRunProcess();
 
         using var proc = Process.Start(psi);
 
@@ -26,7 +26,7 @@ public class ConsoleTests
     [Test]
     public async Task HelpOutputExists()
     {
-        var psi = CreateProcessStartInfo();
+        var psi = GlobalSetup.CreateRunProcess();
 
         using var proc = Process.Start(psi);
 
@@ -64,7 +64,7 @@ public class ConsoleTests
     [Arguments("not-a-file.mp4 -f mp3", "Output format is not supported.")]
     public async Task ErrorOutputs(string input, string expectedOutput)
     {
-        var psi = CreateProcessStartInfo();
+        var psi = GlobalSetup.CreateRunProcess();
 
         using var proc = Process.Start(psi);
 
@@ -91,34 +91,35 @@ public class ConsoleTests
         await Assert.That(output.ToString()).Contains(expectedOutput);
     }
 
-    private static ProcessStartInfo CreateProcessStartInfo()
+    [Test]
+    public async Task ConversionSucceeds()
     {
-        var projectPath = FindProject();
-        return new ProcessStartInfo("dotnet", $"run --project \"{projectPath}\" -c Release")
-        {
-            RedirectStandardInput = true,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-            WorkingDirectory = Directory.GetCurrentDirectory()
-        };
-    }
+        var psi = GlobalSetup.CreateRunProcess();
 
-    private static string FindProject()
-    {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        using var proc = Process.Start(psi);
 
-        while (dir != null)
+        var output = new StringBuilder();
+
+        var testFile = Path.Join(Environment.CurrentDirectory, "Testvideos", "example_webm.webm");
+
+        await proc.StandardInput.WriteLineAsync(testFile).ConfigureAwait(false);
+        await proc.StandardInput.FlushAsync().ConfigureAwait(false);
+        proc.StandardInput.Close();
+
+        proc.OutputDataReceived += (_, args) =>
         {
-            if (Directory.Exists(Path.Combine(dir.FullName, "src", "VideoConverter")))
+            if (args.Data is not null)
             {
-                return Path.Combine(dir.FullName, "src", "VideoConverter");
+                output.AppendLine(args.Data);
             }
+        };
 
-            dir = dir.Parent;
-        }
+        proc.BeginOutputReadLine();
 
-        throw new InvalidOperationException("Could not find project");
+        var ct = TestContext.Current.Execution.CancellationToken;
+
+        await proc.WaitForExitAsync(ct).ConfigureAwait(false);
+
+        await Assert.That(output.ToString()).Contains("Successfully converted file");
     }
 }
