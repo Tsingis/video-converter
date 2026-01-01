@@ -13,7 +13,7 @@ public static class Program
     private static string s_defaultOutputDir;
     private static string s_defaultOutputFormat;
 
-    public static void Main()
+    public static async Task Main()
     {
         SetupProgram();
 
@@ -75,7 +75,7 @@ public static class Program
             {
                 foreach (var err in parseResult.Errors)
                 {
-                    Console.Error.WriteLine(err.Message);
+                    await Console.Error.WriteLineAsync(err.Message);
                 }
                 continue;
             }
@@ -86,7 +86,7 @@ public static class Program
 
             if (help)
             {
-                parseResult.Invoke();
+                await parseResult.InvokeAsync();
                 continue;
             }
 
@@ -104,7 +104,7 @@ public static class Program
             var exitCode = HandleOptions(options);
             if (exitCode != ExitCode.Error)
             {
-                HandleConvert(options).Wait();
+                await HandleConvert(options);
             }
         }
     }
