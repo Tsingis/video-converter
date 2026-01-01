@@ -2,6 +2,7 @@
 using FFmpegConverter.Exceptions;
 using Microsoft.Extensions.Configuration;
 using System.CommandLine;
+using System.CommandLine.Help;
 
 namespace VideoConverter;
 
@@ -17,35 +18,19 @@ public static class Program
     {
         SetupProgram();
 
-        Console.WriteLine("Give URL or file path and optional output format and/or output path.");
-        Console.WriteLine("Default options can be set with config.json file.\n");
-        Console.WriteLine("Usage: -i <input url or path> -f <output format> -o <output path>");
-        Console.WriteLine("Example: -i https://video.com/video1.mp4 -f webm");
-
         while (true)
         {
             _outputDir = _defaultOutputDir;
             _outputFormat = _defaultOutputFormat;
 
-            Console.Write("\nType input (q to quit): ");
+            Console.Write("\nType input: ");
             var input = Console.ReadLine();
-
-            if (input.ToLowerInvariant().Equals("q", StringComparison.InvariantCulture))
-            {
-                Environment.Exit((int)ExitCode.OK);
-                break;
-            }
-
-            if (!input.StartsWith("-i", StringComparison.InvariantCulture) && !string.IsNullOrEmpty(input))
-            {
-                input = input.Insert(0, "-i");
-            }
 
             var args = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-            var inputOption = new Option<string>("-i")
+            var inputArg = new Argument<string>("input")
             {
-                Required = true,
+                Arity = ArgumentArity.ExactlyOne,
                 Description = "The input file to convert."
             };
 
@@ -61,14 +46,35 @@ public static class Program
                 Description = "Output path for the converted file."
             };
 
-            var root = new RootCommand
+            var quitOption = new Option<bool>("q", "quit")
             {
-                inputOption,
-                formatOption,
-                outputOption
+                Required = false,
+                Description = "Quit the application."
             };
 
+            var root = new RootCommand
+            {
+                inputArg,
+                formatOption,
+                outputOption,
+                quitOption,
+            };
+
+            var version = root.Options.FirstOrDefault(o => o is VersionOption);
+            if (version is not null)
+            {
+                root.Options.Remove(version);
+            }
+
             var parseResult = root.Parse(args);
+
+            var quit = parseResult.GetValue(quitOption);
+            if (quit)
+            {
+                Environment.Exit((int)ExitCode.OK);
+                break;
+            }
+
             if (parseResult.Errors.Count > 0)
             {
                 foreach (var err in parseResult.Errors)
@@ -78,18 +84,28 @@ public static class Program
                 continue;
             }
 
-            var inFile = parseResult.GetValue(inputOption);
+            var help = parseResult.CommandResult.Children
+                .OfType<System.CommandLine.Parsing.OptionResult>()
+                .Any(r => r.Option is HelpOption);
+
+            if (help)
+            {
+                parseResult.Invoke();
+                continue;
+            }
+
+            var inFile = parseResult.CommandResult.GetValue(inputArg);
             var format = parseResult.GetValue(formatOption);
             var outputPath = parseResult.GetValue(outputOption);
 
-            var optionsObj = new ConverterOptions
+            var options = new ConverterOptions
             {
                 InputFile = inFile,
                 OutputFormat = format,
                 OutputPath = outputPath
             };
 
-            var exitCode = HandleOptions(optionsObj);
+            var exitCode = HandleOptions(options);
             if (exitCode != ExitCode.Error)
             {
                 HandleConvert().Wait();
@@ -183,7 +199,10 @@ public static class Program
     {
         try
         {
-            var config = SetupConfig();
+            var config = new ConfigurationBuilder()
+                .AddJsonFile("config.json", false)
+                .Build();
+
             _defaultOutputFormat = config.GetValue<string>("defaultOutputFormat");
             _defaultOutputDir = config.GetValue<string>("defaultOutputDir");
 
@@ -207,19 +226,5 @@ public static class Program
             Console.ReadKey();
             Environment.Exit((int)ExitCode.Error);
         }
-    }
-
-    private static IConfiguration SetupConfig()
-    {
-        var builder = new ConfigurationBuilder()
-            .AddJsonFile("config.json", false);
-
-        return builder.Build();
-    }
-
-    private enum ExitCode
-    {
-        OK = 0,
-        Error,
     }
 }
