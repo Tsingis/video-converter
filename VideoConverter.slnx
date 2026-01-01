@@ -1,10 +1,12 @@
 <Solution>
-  <Folder Name="/src/" />
+  <Folder Name="/src/">
+    <Project Path="src/FFmpegConverter/FFmpegConverter.csproj" />
+    <Project Path="src/FFmpegDownloader/FFmpegDownloader.csproj" />
+    <Project Path="src/VideoConverter/VideoConverter.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/E2ETests/E2ETests.csproj" />
+    <Project Path="tests/IntegrationTests/IntegrationTests.csproj" />
+    <Project Path="tests/UnitTests/UnitTests.csproj" />
   </Folder>
-  <Project Path="src/FFmpegConverter/FFmpegConverter.csproj" />
-  <Project Path="src/FFmpegDownloader/FFmpegDownloader.csproj" />
-  <Project Path="tests/UnitTests/UnitTests.csproj" />
-  <Project Path="src/VideoConverter/VideoConverter.csproj" />
 </Solution>
