@@ -8,11 +8,8 @@ namespace VideoConverter;
 
 public static class Program
 {
-    private static string _inputFile;
-    private static string _outputDir;
-    private static string _outputFormat;
-    private static string _defaultOutputDir;
-    private static string _defaultOutputFormat;
+    private static string s_defaultOutputDir;
+    private static string s_defaultOutputFormat;
 
     public static void Main()
     {
@@ -20,9 +17,6 @@ public static class Program
 
         while (true)
         {
-            _outputDir = _defaultOutputDir;
-            _outputFormat = _defaultOutputFormat;
-
             Console.Write("\nType input: ");
             var input = Console.ReadLine();
 
@@ -108,22 +102,22 @@ public static class Program
             var exitCode = HandleOptions(options);
             if (exitCode != ExitCode.Error)
             {
-                HandleConvert().Wait();
+                HandleConvert(options).Wait();
             }
         }
     }
 
     private static ExitCode HandleOptions(ConverterOptions options)
     {
-        if (options.OutputFormat is not null)
+        if (string.IsNullOrEmpty(options.OutputFormat))
         {
-            if (!VideoFormat.IsSupportedVideoFormat(options.OutputFormat))
-            {
-                Console.WriteLine("Output format is not supported.");
-                return ExitCode.Error;
-            }
+            options.OutputFormat = s_defaultOutputFormat;
+        }
 
-            _outputFormat = options.OutputFormat;
+        if (!VideoFormat.IsSupportedVideoFormat(options.OutputFormat))
+        {
+            Console.WriteLine("Output format is not supported.");
+            return ExitCode.Error;
         }
 
         if (!string.IsNullOrEmpty(options.InputFile))
@@ -146,41 +140,39 @@ public static class Program
             }
 
             var inputFormat = Path.GetExtension(options.InputFile).Replace(".", "", StringComparison.InvariantCulture);
-            if (inputFormat.Equals(_outputFormat, StringComparison.InvariantCulture))
+            if (inputFormat.Equals(options.OutputFormat, StringComparison.InvariantCulture))
             {
                 Console.WriteLine("Output and input formats are the same.");
                 return ExitCode.Error;
             }
-
-            _inputFile = options.InputFile;
         }
 
-        if (options.OutputPath is not null)
+        if (string.IsNullOrEmpty(options.OutputPath))
         {
-            _outputDir = options.OutputPath;
+            options.OutputPath = s_defaultOutputDir;
         }
 
         return ExitCode.OK;
     }
 
-    private static async Task HandleConvert()
+    private static async Task HandleConvert(ConverterOptions options)
     {
         try
         {
             string output = string.Empty;
-            if (Uri.IsWellFormedUriString(_inputFile, UriKind.RelativeOrAbsolute))
+            if (Uri.IsWellFormedUriString(options.InputFile, UriKind.RelativeOrAbsolute))
             {
-                var downloadPath = await Utility.DownloadFileAsync(new Uri(_inputFile)).ConfigureAwait(false);
+                var downloadPath = await Utility.DownloadFileAsync(new Uri(options.InputFile)).ConfigureAwait(false);
 
                 if (File.Exists(downloadPath))
                 {
-                    output = await Converter.ConvertAsync(downloadPath, _outputDir, _outputFormat).ConfigureAwait(false);
+                    output = await Converter.ConvertAsync(downloadPath, options.OutputPath, options.OutputFormat).ConfigureAwait(false);
                     File.Delete(downloadPath);
                 }
             }
             else
             {
-                output = await Converter.ConvertAsync(_inputFile, _outputDir, _outputFormat).ConfigureAwait(false);
+                output = await Converter.ConvertAsync(options.InputFile, options.OutputPath, options.OutputFormat).ConfigureAwait(false);
             }
 
             Console.WriteLine($"Successfully conversed file {output}");
@@ -204,20 +196,20 @@ public static class Program
                 .Build()
                 .Get<ConfigurationOptions>();
 
-            _defaultOutputFormat = config?.DefaultOutputFormat;
-            _defaultOutputDir = config?.DefaultOutputDir;
+            s_defaultOutputFormat = config?.DefaultOutputFormat;
+            s_defaultOutputDir = config?.DefaultOutputDir;
 
-            if (!Directory.Exists(_defaultOutputDir))
+            if (!Directory.Exists(s_defaultOutputDir))
             {
                 var path = Path.Join(Environment.CurrentDirectory, "Output");
                 Directory.CreateDirectory(path);
-                _defaultOutputDir = path;
+                s_defaultOutputDir = path;
             }
 
-            if (string.IsNullOrEmpty(_defaultOutputFormat) ||
-                !VideoFormat.IsSupportedVideoFormat(_defaultOutputFormat))
+            if (string.IsNullOrEmpty(s_defaultOutputFormat) ||
+                !VideoFormat.IsSupportedVideoFormat(s_defaultOutputFormat))
             {
-                _defaultOutputFormat = VideoFormat.Mp4;
+                s_defaultOutputFormat = VideoFormat.Mp4;
             }
         }
         catch (Exception ex)
