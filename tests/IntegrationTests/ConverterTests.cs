@@ -2,7 +2,6 @@ using FFmpegConverter;
 
 namespace IntegrationTests;
 
-[NotInParallel]
 public class VideoFormatTests
 {
     const string TestVideoPath = "Testvideos";
@@ -16,7 +15,7 @@ public class VideoFormatTests
     public async Task ConversionSucceeds(string inputFile, string outputFormat)
     {
         var inputFilePath = Path.Join(Environment.CurrentDirectory, TestVideoPath, inputFile);
-        var outputFileDir = Path.Join(Environment.CurrentDirectory, TestVideoPath);
+        var outputFileDir = Path.GetTempPath();
 
         var outputFilePath = await Converter
             .ConvertAsync(inputFilePath, outputFileDir, outputFormat)
