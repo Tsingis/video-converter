@@ -5,7 +5,6 @@ using Moq.Protected;
 
 namespace UnitTests;
 
-[NotInParallel]
 public class UtilityTests
 {
     [Test]
@@ -30,9 +29,9 @@ public class UtilityTests
             .ReturnsAsync(responseMessage);
 
         using var httpClient = new HttpClient(mockHandler.Object);
-        Utility.HttpClientFactory = () => httpClient;
+        var utility = new Utility(httpClient);
 
-        var downloadedFile = await Utility.DownloadFileAsync(url).ConfigureAwait(false);
+        var downloadedFile = await utility.DownloadFileAsync(url).ConfigureAwait(false);
 
         await Assert.That(File.Exists(downloadedFile)).IsTrue();
 
@@ -65,9 +64,9 @@ public class UtilityTests
             .ReturnsAsync(responseMessage);
 
         using var httpClient = new HttpClient(mockHandler.Object);
-        Utility.HttpClientFactory = () => httpClient;
+        var utility = new Utility(httpClient);
 
-        var exception = await Assert.That(() => Utility.DownloadFileAsync(url))
+        var exception = await Assert.That(async () => await utility.DownloadFileAsync(url).ConfigureAwait(false))
             .Throws<HttpRequestException>();
 
         await Assert.That(exception.Message).IsEqualTo("Download failed");

@@ -13,6 +13,9 @@ public static class Program
     private static string s_defaultOutputDir;
     private static string s_defaultOutputFormat;
 
+    private static readonly HttpClient s_httpClient = new();
+    private static readonly Utility s_utility = new(s_httpClient);
+
     public static async Task Main()
     {
         SetupProgram();
@@ -165,7 +168,7 @@ public static class Program
             string output = string.Empty;
             if (Uri.IsWellFormedUriString(options.InputFile, UriKind.RelativeOrAbsolute))
             {
-                var downloadPath = await Utility.DownloadFileAsync(new Uri(options.InputFile));
+                var downloadPath = await s_utility.DownloadFileAsync(new Uri(options.InputFile));
 
                 if (File.Exists(downloadPath))
                 {
