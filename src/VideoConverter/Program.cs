@@ -200,11 +200,12 @@ public static class Program
         try
         {
             var config = new ConfigurationBuilder()
-                .AddJsonFile("config.json", false)
-                .Build();
+                .AddJsonFile("config.json", true)
+                .Build()
+                .Get<ConfigurationOptions>();
 
-            _defaultOutputFormat = config.GetValue<string>("defaultOutputFormat");
-            _defaultOutputDir = config.GetValue<string>("defaultOutputDir");
+            _defaultOutputFormat = config?.DefaultOutputFormat;
+            _defaultOutputDir = config?.DefaultOutputDir;
 
             if (!Directory.Exists(_defaultOutputDir))
             {
