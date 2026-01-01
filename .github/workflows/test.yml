@@ -11,7 +11,7 @@ on:
       - ".github/workflows/test.yml"
   workflow_dispatch:
 jobs:
-  test:
+  unit-test:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -35,4 +35,20 @@ jobs:
         run: echo $GITHUB_WORKSPACE >> $GITHUB_PATH
         shell: bash
       - name: Test
-        run: dotnet test --configuration Release --no-restore --no-build
+        run: dotnet test --project ./tests/UnitTests -c Release --no-restore --no-build
+  e2e-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - name: Setup .NET
+        uses: actions/setup-dotnet@2016bd2012dba4e32de620c46fe006a3ac9f0602 # v5.0.1
+        with:
+          global-json-file: ./global.json
+      - name: Test
+        run: dotnet test --project ./tests/E2ETests -c Release

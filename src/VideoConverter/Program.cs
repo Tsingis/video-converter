@@ -135,18 +135,19 @@ public static class Program
                 }
             }
 
-            if (!validUrl && !File.Exists(options.InputFile))
-            {
-                Console.Error.WriteErrorLine("Input file does not exist.");
-                return ExitCode.Error;
-            }
-
             var inputFormat = Path.GetExtension(options.InputFile).Replace(".", "", StringComparison.InvariantCulture);
             if (inputFormat.Equals(options.OutputFormat, StringComparison.InvariantCulture))
             {
                 Console.Error.WriteErrorLine("Output and input formats are the same.");
                 return ExitCode.Error;
             }
+
+            if (!validUrl && !File.Exists(options.InputFile))
+            {
+                Console.Error.WriteErrorLine("Input file does not exist.");
+                return ExitCode.Error;
+            }
+
         }
 
         if (string.IsNullOrEmpty(options.OutputPath))

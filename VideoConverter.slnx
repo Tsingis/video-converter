@@ -1,5 +1,8 @@
 <Solution>
   <Folder Name="/src/" />
+  <Folder Name="/tests/">
+    <Project Path="tests/E2ETests/E2ETests.csproj" />
+  </Folder>
   <Project Path="src/FFmpegConverter/FFmpegConverter.csproj" />
   <Project Path="src/FFmpegDownloader/FFmpegDownloader.csproj" />
   <Project Path="tests/UnitTests/UnitTests.csproj" />
