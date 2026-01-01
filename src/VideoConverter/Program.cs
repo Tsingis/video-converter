@@ -6,6 +6,8 @@ using System.CommandLine.Help;
 
 namespace VideoConverter;
 
+#pragma warning disable CA2007 // Consider calling ConfigureAwait on the awaited task
+
 public static class Program
 {
     private static string s_defaultOutputDir;
@@ -116,7 +118,7 @@ public static class Program
 
         if (!VideoFormat.IsSupportedVideoFormat(options.OutputFormat))
         {
-            Console.WriteLine("Output format is not supported.");
+            Console.Error.WriteErrorLine("Output format is not supported.");
             return ExitCode.Error;
         }
 
@@ -128,21 +130,21 @@ public static class Program
                 validUrl = Uri.IsWellFormedUriString(options.InputFile, UriKind.Absolute);
                 if (!validUrl)
                 {
-                    Console.WriteLine("Input uri not well formed.");
+                    Console.Error.WriteErrorLine("Input uri not well formed.");
                     return ExitCode.Error;
                 }
             }
 
             if (!validUrl && !File.Exists(options.InputFile))
             {
-                Console.WriteLine("Input file does not exist.");
+                Console.Error.WriteErrorLine("Input file does not exist.");
                 return ExitCode.Error;
             }
 
             var inputFormat = Path.GetExtension(options.InputFile).Replace(".", "", StringComparison.InvariantCulture);
             if (inputFormat.Equals(options.OutputFormat, StringComparison.InvariantCulture))
             {
-                Console.WriteLine("Output and input formats are the same.");
+                Console.Error.WriteErrorLine("Output and input formats are the same.");
                 return ExitCode.Error;
             }
         }
@@ -162,28 +164,28 @@ public static class Program
             string output = string.Empty;
             if (Uri.IsWellFormedUriString(options.InputFile, UriKind.RelativeOrAbsolute))
             {
-                var downloadPath = await Utility.DownloadFileAsync(new Uri(options.InputFile)).ConfigureAwait(false);
+                var downloadPath = await Utility.DownloadFileAsync(new Uri(options.InputFile));
 
                 if (File.Exists(downloadPath))
                 {
-                    output = await Converter.ConvertAsync(downloadPath, options.OutputPath, options.OutputFormat).ConfigureAwait(false);
+                    output = await Converter.ConvertAsync(downloadPath, options.OutputPath, options.OutputFormat);
                     File.Delete(downloadPath);
                 }
             }
             else
             {
-                output = await Converter.ConvertAsync(options.InputFile, options.OutputPath, options.OutputFormat).ConfigureAwait(false);
+                output = await Converter.ConvertAsync(options.InputFile, options.OutputPath, options.OutputFormat);
             }
 
-            Console.WriteLine($"Successfully conversed file {output}");
+            Console.Out.WriteSuccessLine($"Successfully conversed file {output}");
         }
         catch (HttpRequestException ex)
         {
-            Console.WriteLine($"Error in downloading file. {ex.Message}");
+            await Console.Error.WriteErrorLineAsync("Error in downloading file", ex);
         }
         catch (ConversionException ex)
         {
-            Console.WriteLine($"Error in conversion. {ex.Message}");
+            await Console.Error.WriteErrorLineAsync($"Error in conversion", ex);
         }
     }
 
@@ -214,7 +216,7 @@ public static class Program
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error in config. {ex.Message}");
+            Console.Error.WriteErrorLine($"Error in config", ex);
             Console.WriteLine("Press any key to quit");
             Console.ReadKey();
             Environment.Exit((int)ExitCode.Error);
