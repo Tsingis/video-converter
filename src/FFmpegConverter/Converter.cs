@@ -7,19 +7,24 @@ namespace FFmpegConverter;
 
 public static class Converter
 {
-    private static readonly string[] _executables = ["ffmpeg.exe", "ffprobe.exe"];
+    private static readonly string[] s_executables = ["ffmpeg.exe", "ffprobe.exe"];
     private static readonly string _executablesPath = Environment.CurrentDirectory;
+    private static readonly SemaphoreSlim s_ffmpegLock = new(1, 1);
 
-    public static async Task<string> ConvertAsync(string inputFilePath, string outputFileDir, string outputFormat)
+    static Converter()
     {
         if (FFmpegExecutablesExist(_executablesPath))
         {
             FFmpeg.SetExecutablesPath(_executablesPath, formatprovider: CultureInfo.InvariantCulture);
         }
+    }
 
+    public static async Task<string> ConvertAsync(string inputFilePath, string outputFileDir, string outputFormat)
+    {
         var outputFilePath = GetOutputFilepath(inputFilePath, outputFileDir, outputFormat);
         if (File.Exists(outputFilePath)) File.Delete(outputFilePath);
 
+        await s_ffmpegLock.WaitAsync().ConfigureAwait(false);
         try
         {
             IConversion conversion = outputFormat switch
@@ -40,12 +45,16 @@ public static class Converter
         {
             throw new Exceptions.ConversionException("Conversion failed.", ex);
         }
+        finally
+        {
+            s_ffmpegLock.Release();
+        }
     }
 
     private static bool FFmpegExecutablesExist(string targetDirectory)
     {
         var files = Directory.GetFiles(targetDirectory).Select(Path.GetFileName);
-        return Array.TrueForAll(_executables, x => files.Contains(x));
+        return Array.TrueForAll(s_executables, x => files.Contains(x));
     }
 
     private static string GetOutputFilepath(string inputFilePath, string outputDir, string outputFormat)
