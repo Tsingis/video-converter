@@ -3,6 +3,9 @@
     <ProjectReference Include="..\..\src\FFmpegConverter\FFmpegConverter.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Testvideos\*" CopyToOutputDirectory="Always" />
+    <Content Include="..\Testvideos\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>Testvideos\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
   </ItemGroup>
 </Project>

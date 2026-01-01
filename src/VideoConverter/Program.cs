@@ -130,7 +130,7 @@ public static class Program
             bool validUrl = false;
             if (options.InputFile.StartsWith("http", StringComparison.InvariantCulture))
             {
-                validUrl = Uri.IsWellFormedUriString(options.InputFile, UriKind.Absolute);
+                validUrl = Uri.IsWellFormedUriString(options.InputFile, UriKind.RelativeOrAbsolute);
                 if (!validUrl)
                 {
                     Console.Error.WriteErrorLine("Input uri not well formed.");
@@ -166,9 +166,10 @@ public static class Program
         try
         {
             string output = string.Empty;
-            if (Uri.IsWellFormedUriString(options.InputFile, UriKind.RelativeOrAbsolute))
+            if (Uri.TryCreate(options.InputFile, UriKind.Absolute, out var uri)
+                && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
             {
-                var downloadPath = await s_utility.DownloadFileAsync(new Uri(options.InputFile));
+                var downloadPath = await s_utility.DownloadFileAsync(uri);
 
                 if (File.Exists(downloadPath))
                 {
@@ -181,7 +182,7 @@ public static class Program
                 output = await Converter.ConvertAsync(options.InputFile, options.OutputPath, options.OutputFormat);
             }
 
-            Console.Out.WriteSuccessLine($"Successfully conversed file {output}");
+            Console.Out.WriteSuccessLine($"Successfully converted file {output}");
         }
         catch (HttpRequestException ex)
         {

@@ -26,7 +26,7 @@ jobs:
         with:
           global-json-file: ./global.json
       - name: Test
-        run: dotnet test --project ./tests/UnitTests -c Release
+        run: dotnet test --project tests/UnitTests -c Release
   integration-test:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -41,15 +41,13 @@ jobs:
         uses: actions/setup-dotnet@2016bd2012dba4e32de620c46fe006a3ac9f0602 # v5.0.1
         with:
           global-json-file: ./global.json
-      - name: Build app
-        run: dotnet build --configuration Release
       - name: Download FFmpeg executables
-        run: dotnet run --project src/FFmpegDownloader $GITHUB_WORKSPACE
+        run: dotnet run --project src/FFmpegDownloader -c Release $GITHUB_WORKSPACE
       - name: Set downloaded executables to PATH
         run: echo $GITHUB_WORKSPACE >> $GITHUB_PATH
         shell: bash
       - name: Test
-        run: dotnet test --project ./tests/IntegrationTests -c Release --no-restore --no-build
+        run: dotnet test --project tests/IntegrationTests -c Release
   e2e-test:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -64,5 +62,10 @@ jobs:
         uses: actions/setup-dotnet@2016bd2012dba4e32de620c46fe006a3ac9f0602 # v5.0.1
         with:
           global-json-file: ./global.json
+      - name: Download FFmpeg executables
+        run: dotnet run --project src/FFmpegDownloader -c Release $GITHUB_WORKSPACE
+      - name: Set downloaded executables to PATH
+        run: echo $GITHUB_WORKSPACE >> $GITHUB_PATH
+        shell: bash
       - name: Test
-        run: dotnet test --project ./tests/E2ETests -c Release
+        run: dotnet test --project tests/E2ETests -c Release
