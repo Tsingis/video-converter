@@ -1,9 +1,9 @@
 using FFmpegConverter;
 
-namespace UnitTests;
+namespace IntegrationTests;
 
 [NotInParallel]
-public class ConverterTests
+public class VideoFormatTests
 {
     const string TestVideoPath = "Testvideos";
 
@@ -24,16 +24,5 @@ public class ConverterTests
 
         await Assert.That(File.Exists(outputFilePath)).IsTrue();
         File.Delete(outputFilePath);
-    }
-
-    [Test]
-    [Arguments("mp4", true)]
-    [Arguments("webm", true)]
-    [Arguments("gif", true)]
-    [Arguments("wmv", false)]
-    public async Task IsSupportedVideoFormat(string format, bool expected)
-    {
-        var result = VideoFormat.IsSupportedVideoFormat(format);
-        await Assert.That(result).IsEqualTo(expected);
     }
 }
