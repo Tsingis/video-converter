@@ -17,7 +17,7 @@ public static class Converter
             FFmpeg.SetExecutablesPath(_executablesPath, formatprovider: CultureInfo.InvariantCulture);
         }
 
-        var outputFilePath = Utility.GetOutputFilepath(inputFilePath, outputFileDir, outputFormat);
+        var outputFilePath = GetOutputFilepath(inputFilePath, outputFileDir, outputFormat);
         if (File.Exists(outputFilePath)) File.Delete(outputFilePath);
 
         try
@@ -46,5 +46,12 @@ public static class Converter
     {
         var files = Directory.GetFiles(targetDirectory).Select(Path.GetFileName);
         return Array.TrueForAll(_executables, x => files.Contains(x));
+    }
+
+    private static string GetOutputFilepath(string inputFilePath, string outputDir, string outputFormat)
+    {
+        var inputFile = Path.GetFileName(inputFilePath);
+        var outputFilepath = Path.Join(outputDir, inputFile);
+        return Path.ChangeExtension(outputFilepath, outputFormat);
     }
 }
