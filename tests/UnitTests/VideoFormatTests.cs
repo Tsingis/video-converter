@@ -2,7 +2,6 @@ using FFmpegConverter;
 
 namespace UnitTests;
 
-[NotInParallel]
 public class VideoFormatTests
 {
     [Test]
