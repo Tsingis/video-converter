@@ -42,16 +42,18 @@ jobs:
         shell: pwsh
         run: |
           $RID = "win-x64"
-          $OUT = "video-converter-win.zip"
-          dotnet publish -c Release -r $RID
+          $OUT = "video-converter-$RID.zip"
+          dotnet publish src/VideoConverter -c Release -r $RID
+          dotnet publish src/FFmpegDownloader -c Release -r $RID
           Compress-Archive -Path ./publish/* -DestinationPath $OUT -Force
           echo "PACKAGE_PATH=$OUT" >> $env:GITHUB_ENV
       - name: Publish Linux
         if: matrix.os == 'ubuntu-latest'
         run: |
           RID=linux-x64
-          OUT=video-converter-linux.tar.gz
-          dotnet publish -c Release -r $RID
+          OUT=video-converter-$RID.tar.gz
+          dotnet publish src/VideoConverter -c Release -r $RID
+          dotnet publish src/FFmpegDownloader -c Release -r $RID
           tar -czvf $OUT -C ./publish .
           echo "PACKAGE_PATH=$OUT" >> $GITHUB_ENV
       - name: Upload artifacts
