@@ -6,15 +6,6 @@ namespace FFmpegConverter;
 
 public static class Converter
 {
-    private static readonly string[] s_executables =
-        OperatingSystem.IsWindows()
-        ? ["ffmpeg.exe", "ffprobe.exe"]
-        : ["ffmpeg", "ffprobe"];
-
-    private static readonly string s_executablesPath =
-        Environment.GetEnvironmentVariable("FFMPEG_PATH")
-        ?? Path.Join(Environment.CurrentDirectory, "ffmpeg");
-
     private static bool s_initialized;
 
     private static void EnsureFFmpegInitialized()
@@ -24,12 +15,16 @@ public static class Converter
             return;
         }
 
-        if (!FFmpegExecutablesExist(s_executablesPath))
+        var executablesPath =
+            Environment.GetEnvironmentVariable("FFMPEG_PATH")
+            ?? Path.Join(Environment.CurrentDirectory, "ffmpeg");
+
+        if (!FFmpegExecutablesExist(executablesPath))
         {
-            throw new FFmpegPathException($"FFmpeg executables not found in env 'FFMPEG_PATH' or {s_executablesPath}");
+            throw new FFmpegPathException($"FFmpeg executables not found in env 'FFMPEG_PATH' or {executablesPath}");
         }
 
-        FFmpeg.SetExecutablesPath(s_executablesPath, formatprovider: CultureInfo.InvariantCulture);
+        FFmpeg.SetExecutablesPath(executablesPath, formatprovider: CultureInfo.InvariantCulture);
         s_initialized = true;
     }
 
@@ -60,7 +55,10 @@ public static class Converter
 
     private static bool FFmpegExecutablesExist(string targetDirectory)
     {
-        return s_executables.All(name => File.Exists(Path.Combine(targetDirectory, name)));
+        string[] executables = OperatingSystem.IsWindows()
+            ? ["ffmpeg.exe", "ffprobe.exe"]
+            : ["ffmpeg", "ffprobe"];
+        return executables.All(name => File.Exists(Path.Combine(targetDirectory, name)));
     }
 
     private static string GetOutputFilepath(string inputFilePath, string outputDir, string outputFormat)
