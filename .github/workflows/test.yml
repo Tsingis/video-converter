@@ -42,12 +42,11 @@ jobs:
         with:
           global-json-file: ./global.json
       - name: Download FFmpeg executables
-        run: dotnet run --project src/FFmpegDownloader -c Release $GITHUB_WORKSPACE
-      - name: Set downloaded executables to PATH
-        run: echo $GITHUB_WORKSPACE >> $GITHUB_PATH
-        shell: bash
+        run: dotnet run --project src/FFmpegDownloader -c Release ${{ github.workspace }}/ffmpeg
       - name: Test
         run: dotnet test --project tests/IntegrationTests -c Release
+        env:
+          FFMPEG_PATH: ${{ github.workspace }}/ffmpeg
   e2e-test:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -63,9 +62,8 @@ jobs:
         with:
           global-json-file: ./global.json
       - name: Download FFmpeg executables
-        run: dotnet run --project src/FFmpegDownloader -c Release $GITHUB_WORKSPACE
-      - name: Set downloaded executables to PATH
-        run: echo $GITHUB_WORKSPACE >> $GITHUB_PATH
-        shell: bash
+        run: dotnet run --project src/FFmpegDownloader -c Release ${{ github.workspace }}/ffmpeg
       - name: Test
         run: dotnet test --project tests/E2ETests -c Release
+        env:
+          FFMPEG_PATH: ${{ github.workspace }}/ffmpeg

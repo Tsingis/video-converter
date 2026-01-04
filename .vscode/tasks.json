@@ -9,6 +9,13 @@
             "group": "build"
         },
         {
+            "label": "run: Downloader",
+            "type": "shell",
+            "command": "dotnet run --project ./src/FFmpegDownloader ${workspaceFolder}/ffmpeg",
+            "problemMatcher": "$msCompile",
+            "group": "build"
+        },
+        {
             "label": "list outdated",
             "type": "shell",
             "command": "dotnet list package --outdated",

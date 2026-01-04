@@ -2,18 +2,25 @@ using Xabe.FFmpeg.Downloader;
 
 namespace FFmpeg.Downloader;
 
+#pragma warning disable CA2007 // Consider calling ConfigureAwait on the awaited task
+
 public static class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
-        var path = args?.Length > 0 && Directory.Exists(args[0]) ? args[0] : Environment.CurrentDirectory;
+        var path = args?.Length > 0
+            ? args[0]
+            : AppContext.BaseDirectory;
+
+        Directory.CreateDirectory(path);
+
         Console.WriteLine($"Downloading FFmpeg executables to {path}");
-        DownloadFFmpegExecutables(path).Wait();
+        await DownloadFFmpegExecutables(path);
         Console.WriteLine("Download finished.");
     }
 
-    private async static Task DownloadFFmpegExecutables(string destinationPath)
+    private static async Task DownloadFFmpegExecutables(string destinationPath)
     {
-        await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, destinationPath).ConfigureAwait(false);
+        await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, destinationPath);
     }
 }
