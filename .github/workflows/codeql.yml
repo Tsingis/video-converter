@@ -1,5 +1,13 @@
 name: codeql
 on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "**.cs"
+      - "**.csproj"
+      - "**.props"
+      - ".github/workflows/**/*.yml"
   push:
     branches:
       - main
