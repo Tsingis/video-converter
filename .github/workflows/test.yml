@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     permissions:
       contents: read
     steps:
@@ -32,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-15-intel]
     permissions:
       contents: read
     steps:
@@ -43,6 +43,9 @@ jobs:
           global-json-file: ./global.json
       - name: Download FFmpeg binaries
         run: dotnet run --project src/FFmpegDownloader -c Release ${{ github.workspace }}/ffmpeg
+      - name: Make binaries executable
+        if: matrix.os != 'windows-latest'
+        run: chmod +x ${{ github.workspace }}/ffmpeg/ffmpeg ${{ github.workspace }}/ffmpeg/ffprobe
       - name: Test
         run: dotnet test --project tests/IntegrationTests -c Release
         env:
@@ -52,7 +55,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     permissions:
       contents: read
     steps:
@@ -63,6 +66,9 @@ jobs:
           global-json-file: ./global.json
       - name: Download FFmpeg binaries
         run: dotnet run --project src/FFmpegDownloader -c Release ${{ github.workspace }}/ffmpeg
+      - name: Make binaries executable
+        if: matrix.os != 'windows-latest'
+        run: chmod +x ${{ github.workspace }}/ffmpeg/ffmpeg ${{ github.workspace }}/ffmpeg/ffprobe
       - name: Test
         run: dotnet test --project tests/E2ETests -c Release
         env:
