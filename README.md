@@ -12,8 +12,7 @@ Requirements:
 
 -   [FFmpeg](https://ffmpeg.org/download.html) executables downloaded
 -   (Optional) use _FFmpegDownloader_ to download required executables
--   FFmpeg executables directory set to Path environment variable
--   (Optional) FFmpeg executables inside the root of the application directory
+-   FFmpeg executables directory set to FFMPEG_PATH environment variable
 
 Configuration:
 
@@ -29,9 +28,3 @@ Configuration:
 Tools used:
 
 -   .NET SDK
-
-App
-
--   Download FFmpeg execs `dotnet run --project src\FFmpegDownloader\FFmpegDownloader.csproj -- {download-path}`
--   Launch `dotnet run --project src\VideoConverter\VideoConverter.csproj`
--   Publish `dotnet publish`
