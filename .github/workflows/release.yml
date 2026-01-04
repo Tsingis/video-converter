@@ -35,6 +35,9 @@ jobs:
           - os: ubuntu-latest
             rid: linux-x64
             archive: tar.gz
+          - os: macos-15-intel
+            rid: osx-x64
+            archive: tar.gz
     env:
       PUBLISH_DIR: publish/${{ matrix.rid }}
       PACKAGE_PATH: video-converter-${{ matrix.rid }}.${{ matrix.archive }}
