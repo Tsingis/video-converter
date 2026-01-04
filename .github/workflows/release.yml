@@ -42,25 +42,27 @@ jobs:
         shell: pwsh
         run: |
           $RID = "win-x64"
-          $OUT = "video-converter-windows.zip"
-          dotnet publish src/VideoConverter -c Release -r $RID
-          dotnet publish src/FFmpegDownloader -c Release -r $RID
-          Compress-Archive -Path ./publish/* -DestinationPath $OUT -Force
+          $OUT = "video-converter-$RID.zip"
+          $PUBLISH_DIR = "publish/$RID"
+          dotnet publish src/VideoConverter -c Release -r $RID -o $PUBLISH_DIR
+          dotnet publish src/FFmpegDownloader -c Release -r $RID -o $PUBLISH_DIR
+          Compress-Archive -Path "$PUBLISH_DIR\*" -DestinationPath $OUT -Force
           echo "PACKAGE_PATH=$OUT" >> $env:GITHUB_ENV
       - name: Publish Linux
         if: matrix.os == 'ubuntu-latest'
         run: |
           RID=linux-x64
-          OUT=video-converter-linux.tar.gz
-          dotnet publish src/VideoConverter -c Release -r $RID
-          dotnet publish src/FFmpegDownloader -c Release -r $RID
-          tar -czvf $OUT -C ./publish .
+          OUT=video-converter-$RID.tar.gz
+          PUBLISH_DIR=publish/$RID
+          dotnet publish src/VideoConverter -c Release -r $RID -o $PUBLISH_DIR
+          dotnet publish src/FFmpegDownloader -c Release -r $RID -o $PUBLISH_DIR
+          tar -czvf $OUT -C $PUBLISH_DIR .
           echo "PACKAGE_PATH=$OUT" >> $GITHUB_ENV
       - name: Upload artifacts
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: ${{ matrix.os }}-package
+          name: ${{ matrix.os }}
           path: ${{ env.PACKAGE_PATH }}
           overwrite: true
           retention-days: 1
@@ -81,6 +83,7 @@ jobs:
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           path: ./packages
+          merge-multiple: true
       - name: Create release
         shell: bash
         run: |
@@ -91,7 +94,7 @@ jobs:
       - name: Upload packages
         shell: bash
         run: |
-          for f in ./packages/*/*; do
+          for f in ./packages/*; do
             gh release upload "$TAG" "$f" --clobber
           done
         env:
