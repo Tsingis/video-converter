@@ -3,8 +3,6 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>VideoConverter</RootNamespace>
     <ApplicationIcon>icon.ico</ApplicationIcon>
-    <RuntimeIdentifiers>win-x64;linux-x64;</RuntimeIdentifiers>
-    <PlatformTarget>anycpu</PlatformTarget>
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
     <PublishDir>..\..\publish</PublishDir>
@@ -23,6 +21,10 @@
     <ProjectReference Include="..\FFmpegConverter\FFmpegConverter.csproj"/>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="config.json" CopyToOutputDirectory="Always" />
+    <Content Include="config.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
   </ItemGroup>
 </Project>
