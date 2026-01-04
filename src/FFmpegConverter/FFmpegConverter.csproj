@@ -4,6 +4,6 @@
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Xabe.FFmpeg" />
+    <PackageReference Include="FFMpegCore" />
   </ItemGroup>
 </Project>

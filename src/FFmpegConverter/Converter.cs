@@ -1,6 +1,6 @@
-using System.Globalization;
 using FFmpegConverter.Exceptions;
-using Xabe.FFmpeg;
+using FFMpegCore;
+using FFMpegCore.Enums;
 
 namespace FFmpegConverter;
 
@@ -24,7 +24,11 @@ public static class Converter
             throw new FFmpegPathException($"FFmpeg executables not found in env 'FFMPEG_PATH' or {executablesPath}");
         }
 
-        FFmpeg.SetExecutablesPath(executablesPath, formatprovider: CultureInfo.InvariantCulture);
+        GlobalFFOptions.Configure(options =>
+        {
+            options.BinaryFolder = executablesPath;
+        });
+
         s_initialized = true;
     }
 
@@ -37,14 +41,27 @@ public static class Converter
 
         try
         {
-            IConversion conversion = outputFormat switch
+            Action<FFMpegArgumentOptions> outputOptions = outputFormat switch
             {
-                VideoFormat.Mp4 => await FFmpeg.Conversions.FromSnippet.ToMp4(inputFilePath, outputFilePath).ConfigureAwait(false),
-                VideoFormat.Webm => await FFmpeg.Conversions.FromSnippet.ToWebM(inputFilePath, outputFilePath).ConfigureAwait(false),
-                VideoFormat.Gif => await FFmpeg.Conversions.FromSnippet.ToGif(inputFilePath, outputFilePath, 1).ConfigureAwait(false),
-                _ => throw new VideoFormatException("Unsupported video format."),
+                VideoFormat.Mp4 => o =>
+                    o.WithVideoCodec(VideoCodec.LibX264)
+                    .WithAudioCodec(AudioCodec.Aac),
+
+                VideoFormat.Webm => o =>
+                    o.WithVideoCodec(VideoCodec.LibVpx)
+                    .WithAudioCodec(AudioCodec.LibVorbis),
+
+                VideoFormat.Gif => o =>
+                    o.WithCustomArgument("-vf fps=1"),
+
+                _ => throw new VideoFormatException("Unsupported video format.")
             };
-            await conversion.Start().ConfigureAwait(false);
+
+            var processor = FFMpegArguments
+                .FromFileInput(inputFilePath)
+                .OutputToFile(outputFilePath, true, outputOptions);
+
+            await processor.ProcessAsynchronously().ConfigureAwait(false);
             return outputFilePath;
         }
         catch (Exception ex)

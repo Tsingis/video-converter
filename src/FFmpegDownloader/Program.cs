@@ -1,4 +1,4 @@
-using Xabe.FFmpeg.Downloader;
+using FFMpegCore;
 
 namespace FFmpeg.Downloader;
 
@@ -35,9 +35,13 @@ public static class Program
         }
     }
 
-    private static async Task DownloadFFmpegExecutables(string destinationPath)
+    private static async Task DownloadFFmpegExecutables(string path)
     {
-        await FFmpegDownloader.GetLatestVersion(FFmpegVersion.Official, destinationPath);
+        var ffOptions = new FFOptions
+        {
+            BinaryFolder = path
+        };
+        await FFMpegCore.Extensions.Downloader.FFMpegDownloader.DownloadBinaries(options: ffOptions);
     }
 
     private static Dictionary<string, DateTime> GetFilesWithWriteTime(string path)

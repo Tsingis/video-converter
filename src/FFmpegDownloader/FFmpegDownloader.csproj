@@ -12,6 +12,6 @@
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Xabe.FFmpeg.Downloader" />
+    <PackageReference Include="FFMpegCore.Extensions.Downloader" />
   </ItemGroup>
 </Project>
