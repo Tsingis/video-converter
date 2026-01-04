@@ -5,4 +5,7 @@
       <Link>Testvideos\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildProjectDirectory)\..\..\ffmpeg\**\*" CopyToOutputDirectory="PreserveNewest" Link="ffmpeg\%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
 </Project>

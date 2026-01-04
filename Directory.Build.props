@@ -33,12 +33,4 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="TUnit" />
   </ItemGroup>
-  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
-    <None Include="ffmpeg.exe" CopyToOutputDirectory="PreserveNewest" Condition="Exists('ffmpeg.exe')" />
-    <None Include="ffprobe.exe" CopyToOutputDirectory="PreserveNewest" Condition="Exists('ffprobe.exe')" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
-    <None Include="ffmpeg" CopyToOutputDirectory="PreserveNewest" Condition="Exists('ffmpeg')" />
-    <None Include="ffprobe" CopyToOutputDirectory="PreserveNewest" Condition="Exists('ffprobe')" />
-  </ItemGroup>
 </Project>
