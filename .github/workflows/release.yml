@@ -28,7 +28,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            rid: win-x64
+            archive: zip
+          - os: ubuntu-latest
+            rid: linux-x64
+            archive: tar.gz
+    env:
+      PUBLISH_DIR: publish/${{ matrix.rid }}
+      PACKAGE_PATH: video-converter-${{ matrix.rid }}.${{ matrix.archive }}
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Setup .NET
@@ -37,29 +46,19 @@ jobs:
           global-json-file: ./global.json
       - name: Restore dependencies
         run: dotnet restore
-      - name: Publish Windows
+      - name: Publish
+        run: |
+          dotnet publish src/VideoConverter -c Release -r ${{ matrix.rid }} -o ${{ env.PUBLISH_DIR }}
+          dotnet publish src/FFmpegDownloader -c Release -r ${{ matrix.rid }} -o ${{ env.PUBLISH_DIR }}
+      - name: Package
         if: matrix.os == 'windows-latest'
         shell: pwsh
-        run: |
-          $RID = "win-x64"
-          $OUT = "video-converter-$RID.zip"
-          $PUBLISH_DIR = "publish/$RID"
-          dotnet publish src/VideoConverter -c Release -r $RID -o $PUBLISH_DIR
-          dotnet publish src/FFmpegDownloader -c Release -r $RID -o $PUBLISH_DIR
-          Compress-Archive -Path "$PUBLISH_DIR\*" -DestinationPath $OUT -Force
-          echo "PACKAGE_PATH=$OUT" >> $env:GITHUB_ENV
-      - name: Publish Linux
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          RID=linux-x64
-          OUT=video-converter-$RID.tar.gz
-          PUBLISH_DIR=publish/$RID
-          dotnet publish src/VideoConverter -c Release -r $RID -o $PUBLISH_DIR
-          dotnet publish src/FFmpegDownloader -c Release -r $RID -o $PUBLISH_DIR
-          tar -czvf $OUT -C $PUBLISH_DIR .
-          echo "PACKAGE_PATH=$OUT" >> $GITHUB_ENV
+        run: Compress-Archive -Path "${{ env.PUBLISH_DIR }}\*" -DestinationPath ${{ env.PACKAGE_PATH }} -Force
+      - name: Package
+        if: matrix.os != 'windows-latest'
+        shell: bash
+        run: tar -czvf ${{ env.PACKAGE_PATH }} -C ${{ env.PUBLISH_DIR }} .
       - name: Upload artifacts
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: ${{ matrix.os }}
