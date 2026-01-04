@@ -14,8 +14,6 @@ public static class Converter
     private static readonly string _executablesPath =
         Environment.GetEnvironmentVariable("FFMPEG_PATH") ?? AppContext.BaseDirectory;
 
-    private static readonly SemaphoreSlim s_ffmpegLock = new(1, 1);
-
     private static bool s_initialized;
 
     private static void EnsureFFmpegInitialized()
@@ -41,7 +39,6 @@ public static class Converter
         var outputFilePath = GetOutputFilepath(inputFilePath, outputFileDir, outputFormat);
         if (File.Exists(outputFilePath)) File.Delete(outputFilePath);
 
-        await s_ffmpegLock.WaitAsync().ConfigureAwait(false);
         try
         {
             IConversion conversion = outputFormat switch
@@ -57,10 +54,6 @@ public static class Converter
         catch (Exception ex)
         {
             throw new ConversionException("Conversion failed.", ex);
-        }
-        finally
-        {
-            s_ffmpegLock.Release();
         }
     }
 
