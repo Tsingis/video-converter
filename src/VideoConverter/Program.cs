@@ -208,7 +208,7 @@ public static class Program
 
             if (!Directory.Exists(s_defaultOutputDir))
             {
-                var path = Path.Join(Environment.CurrentDirectory, "Output");
+                var path = Path.Join(AppContext.BaseDirectory, "Output");
                 Directory.CreateDirectory(path);
                 s_defaultOutputDir = path;
             }

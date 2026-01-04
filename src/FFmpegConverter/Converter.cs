@@ -1,26 +1,43 @@
 using System.Globalization;
 using FFmpegConverter.Exceptions;
 using Xabe.FFmpeg;
-using Xabe.FFmpeg.Exceptions;
 
 namespace FFmpegConverter;
 
 public static class Converter
 {
-    private static readonly string[] s_executables = ["ffmpeg.exe", "ffprobe.exe"];
-    private static readonly string _executablesPath = Environment.CurrentDirectory;
+    private static readonly string[] s_executables =
+        OperatingSystem.IsWindows()
+        ? ["ffmpeg.exe", "ffprobe.exe"]
+        : ["ffmpeg", "ffprobe"];
+
+    private static readonly string _executablesPath =
+        Environment.GetEnvironmentVariable("FFMPEG_PATH") ?? AppContext.BaseDirectory;
+
     private static readonly SemaphoreSlim s_ffmpegLock = new(1, 1);
 
-    static Converter()
+    private static bool s_initialized;
+
+    private static void EnsureFFmpegInitialized()
     {
-        if (FFmpegExecutablesExist(_executablesPath))
+        if (s_initialized)
         {
-            FFmpeg.SetExecutablesPath(_executablesPath, formatprovider: CultureInfo.InvariantCulture);
+            return;
         }
+
+        if (!FFmpegExecutablesExist(_executablesPath))
+        {
+            throw new FFmpegPathException($"FFmpeg executables not found in {_executablesPath}");
+        }
+
+        FFmpeg.SetExecutablesPath(_executablesPath, formatprovider: CultureInfo.InvariantCulture);
+        s_initialized = true;
     }
 
     public static async Task<string> ConvertAsync(string inputFilePath, string outputFileDir, string outputFormat)
     {
+        EnsureFFmpegInitialized();
+
         var outputFilePath = GetOutputFilepath(inputFilePath, outputFileDir, outputFormat);
         if (File.Exists(outputFilePath)) File.Delete(outputFilePath);
 
@@ -37,13 +54,9 @@ public static class Converter
             await conversion.Start().ConfigureAwait(false);
             return outputFilePath;
         }
-        catch (FFmpegNotFoundException)
-        {
-            throw new FFmpegPathException($"FFmpeg executables not found in environment PATH or in {_executablesPath}.");
-        }
         catch (Exception ex)
         {
-            throw new Exceptions.ConversionException("Conversion failed.", ex);
+            throw new ConversionException("Conversion failed.", ex);
         }
         finally
         {
@@ -53,8 +66,7 @@ public static class Converter
 
     private static bool FFmpegExecutablesExist(string targetDirectory)
     {
-        var files = Directory.GetFiles(targetDirectory).Select(Path.GetFileName);
-        return Array.TrueForAll(s_executables, x => files.Contains(x));
+        return s_executables.All(name => File.Exists(Path.Combine(targetDirectory, name)));
     }
 
     private static string GetOutputFilepath(string inputFilePath, string outputDir, string outputFormat)

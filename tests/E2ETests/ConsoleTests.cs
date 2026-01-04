@@ -100,7 +100,7 @@ public class ConsoleTests
 
         var output = new StringBuilder();
 
-        var testFile = Path.Join(Environment.CurrentDirectory, "Testvideos", "example_webm.webm");
+        var testFile = Path.Join(AppContext.BaseDirectory, "Testvideos", "example_webm.webm");
 
         await proc.StandardInput.WriteLineAsync(testFile).ConfigureAwait(false);
         await proc.StandardInput.FlushAsync().ConfigureAwait(false);
