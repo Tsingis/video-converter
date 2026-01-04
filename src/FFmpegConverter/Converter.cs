@@ -11,8 +11,9 @@ public static class Converter
         ? ["ffmpeg.exe", "ffprobe.exe"]
         : ["ffmpeg", "ffprobe"];
 
-    private static readonly string _executablesPath =
-        Environment.GetEnvironmentVariable("FFMPEG_PATH") ?? AppContext.BaseDirectory;
+    private static readonly string s_executablesPath =
+        Environment.GetEnvironmentVariable("FFMPEG_PATH")
+        ?? Path.Join(Environment.CurrentDirectory, "ffmpeg");
 
     private static bool s_initialized;
 
@@ -23,12 +24,12 @@ public static class Converter
             return;
         }
 
-        if (!FFmpegExecutablesExist(_executablesPath))
+        if (!FFmpegExecutablesExist(s_executablesPath))
         {
-            throw new FFmpegPathException($"FFmpeg executables not found in {_executablesPath}");
+            throw new FFmpegPathException($"FFmpeg executables not found in env 'FFMPEG_PATH' or {s_executablesPath}");
         }
 
-        FFmpeg.SetExecutablesPath(_executablesPath, formatprovider: CultureInfo.InvariantCulture);
+        FFmpeg.SetExecutablesPath(s_executablesPath, formatprovider: CultureInfo.InvariantCulture);
         s_initialized = true;
     }
 
