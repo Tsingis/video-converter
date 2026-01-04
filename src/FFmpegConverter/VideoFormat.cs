@@ -1,5 +1,3 @@
-using System.Reflection;
-
 namespace FFmpegConverter;
 
 public static class VideoFormat
@@ -8,18 +6,16 @@ public static class VideoFormat
     public const string Webm = "webm";
     public const string Gif = "gif";
 
+    private static readonly HashSet<string> s_supportedFormats =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            Mp4,
+            Webm,
+            Gif
+        };
+
     public static bool IsSupportedVideoFormat(string format)
     {
-        var allowedFormats = typeof(VideoFormat).GetAllPublicConstantsValues<string>();
-        return allowedFormats.Contains(format?.ToLowerInvariant());
-    }
-
-    private static List<T> GetAllPublicConstantsValues<T>(this Type type)
-    {
-        return type
-        .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
-        .Where(x => x.IsLiteral && !x.IsInitOnly && x.FieldType == typeof(T))
-        .Select(x => (T)x.GetRawConstantValue())
-        .ToList();
+        return format != null && s_supportedFormats.Contains(format);
     }
 }
