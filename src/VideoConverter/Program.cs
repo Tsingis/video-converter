@@ -22,8 +22,22 @@ public static class Program
 
         while (true)
         {
-            Console.Write("\nType input: ");
+            if (!Console.IsInputRedirected)
+            {
+                await Console.Error.WriteAsync("Type input: ");
+            }
+
             var input = Console.ReadLine();
+
+            if (input is null)
+            {
+                break;
+            }
+
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                continue;
+            }
 
             var args = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
@@ -105,10 +119,12 @@ public static class Program
             };
 
             var exitCode = HandleOptions(options);
-            if (exitCode != ExitCode.Error)
+            if (exitCode == ExitCode.Error)
             {
-                await HandleConvert(options);
+                continue;
             }
+
+            await HandleConvert(options);
         }
     }
 

@@ -47,12 +47,37 @@ public class ConsoleTests
         var ct = TestContext.Current.Execution.CancellationToken;
         await proc.WaitForExitAsync(ct).ConfigureAwait(false);
 
-        await Assert.That(output.ToString())
-            .Contains("<input>  The input file to convert")
-            .And.Contains("-f, --format <f>  Format for the converted output file.")
-            .And.Contains("-o, --output <o>  Output path for the converted file.")
-            .And.Contains("q, quit           Quit the application.")
-            .And.Contains("-?, -h, --help    Show help and usage information");
+        var results = output.ToString().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        using (Assert.Multiple())
+        {
+            await Assert.That(results[0]).IsEqualTo("Description:");
+            await Assert.That(results[1]).IsEqualTo("Usage:");
+            await Assert.That(results[2]).IsEqualTo("VideoConverter <input> [options]");
+            await Assert.That(results[3]).IsEqualTo("Arguments:");
+
+            await Assert.That(results[4])
+                .StartsWith("<input>")
+                .And.EndsWith("The input file to convert.");
+
+            await Assert.That(results[5]).IsEqualTo("Options:");
+
+            await Assert.That(results[6])
+                .StartsWith("-f, --format <f>")
+                .And.EndsWith("Format for the converted output file.");
+
+            await Assert.That(results[7])
+                .StartsWith("-o, --output <o>")
+                .And.EndsWith("Output path for the converted file.");
+
+            await Assert.That(results[8])
+                .StartsWith("q, quit")
+                .And.EndsWith("Quit the application.");
+
+            await Assert.That(results[9])
+                .StartsWith("-?, -h, --help ")
+                .And.EndsWith("Show help and usage information");
+        }
     }
 
     [Test]
@@ -84,7 +109,7 @@ public class ConsoleTests
         var ct = TestContext.Current.Execution.CancellationToken;
         await proc.WaitForExitAsync(ct).ConfigureAwait(false);
 
-        await Assert.That(output.ToString()).Contains(expectedOutput);
+        await Assert.That(output.ToString().Trim()).IsEqualTo(expectedOutput);
     }
 
     public record ConversionInput(string FileInput, string OutputFormat);
@@ -139,6 +164,10 @@ public class ConsoleTests
         var ct = TestContext.Current.Execution.CancellationToken;
         await proc.WaitForExitAsync(ct).ConfigureAwait(false);
 
-        await Assert.That(output.ToString()).Contains("Successfully converted file");
+        var outputFile = Path.GetFileName(Path.ChangeExtension(input.FileInput, input.OutputFormat));
+
+        await Assert.That(output.ToString().Trim())
+            .StartsWith("Successfully converted file")
+            .And.EndsWith(outputFile);
     }
 }
