@@ -67,3 +67,4 @@ jobs:
         run: dotnet test --project tests/E2ETests -c Release
         env:
           FFMPEG_PATH: ${{ github.workspace }}/ffmpeg
+          TESTFILE_URL: ${{ vars.TESTFILE_URL }}
