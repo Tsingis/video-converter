@@ -20,115 +20,119 @@ public static class Program
     {
         SetupProgram();
 
-        while (true)
+        var root = CreateRootCommand(
+            out var inputArg,
+            out var formatOption,
+            out var outputOption,
+            out var quitOption);
+
+        while (await ReadInput() is { } input)
         {
-            if (!Console.IsInputRedirected)
-            {
-                await Console.Error.WriteAsync("Type input: ");
-            }
-
-            var input = Console.ReadLine();
-
-            if (input is null)
-            {
-                break;
-            }
-
-            if (string.IsNullOrWhiteSpace(input))
-            {
-                continue;
-            }
-
-            var args = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-            var inputArg = new Argument<string>("input")
-            {
-                Arity = ArgumentArity.ExactlyOne,
-                Description = "The input file to convert."
-            };
-
-            var formatOption = new Option<string>("-f", "--format")
-            {
-                Required = false,
-                Description = "Format for the converted output file."
-            };
-
-            var outputOption = new Option<string>("-o", "--output")
-            {
-                Required = false,
-                Description = "Output path for the converted file."
-            };
-
-            var quitOption = new Option<bool>("q", "quit")
-            {
-                Required = false,
-                Description = "Quit the application."
-            };
-
-            var root = new RootCommand
-            {
+            await ProcessInput(
+                root,
+                input,
                 inputArg,
                 formatOption,
                 outputOption,
-                quitOption,
-            };
+                quitOption);
+        }
+    }
 
-            var version = root.Options.FirstOrDefault(o => o is VersionOption);
-            if (version is not null)
+    private static async Task ProcessInput(RootCommand root, string input,
+        Argument<string> inputArg, Option<string> formatOption,
+        Option<string> outputOption, Option<bool> quitOption)
+    {
+        var args = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var parseResult = root.Parse(args);
+
+        if (parseResult.GetValue(quitOption))
+        {
+            Environment.Exit((int)ExitCode.OK);
+            return;
+        }
+
+        if (parseResult.Errors.Count > 0)
+        {
+            foreach (var err in parseResult.Errors)
             {
-                root.Options.Remove(version);
+                await Console.Error.WriteLineAsync(err.Message);
             }
+            return;
+        }
 
-            var parseResult = root.Parse(args);
+        var help = parseResult.CommandResult.Children
+            .OfType<System.CommandLine.Parsing.OptionResult>()
+            .Any(r => r.Option is HelpOption);
 
-            var quit = parseResult.GetValue(quitOption);
-            if (quit)
-            {
-                Environment.Exit((int)ExitCode.OK);
-                break;
-            }
+        if (help)
+        {
+            await parseResult.InvokeAsync();
+            return;
+        }
 
-            if (parseResult.Errors.Count > 0)
-            {
-                foreach (var err in parseResult.Errors)
-                {
-                    await Console.Error.WriteLineAsync(err.Message);
-                }
-                continue;
-            }
+        var options = new ConverterOptions
+        {
+            InputFile = parseResult.CommandResult.GetValue(inputArg),
+            OutputFormat = parseResult.GetValue(formatOption),
+            OutputPath = parseResult.GetValue(outputOption)
+        };
 
-            var help = parseResult.CommandResult.Children
-                .OfType<System.CommandLine.Parsing.OptionResult>()
-                .Any(r => r.Option is HelpOption);
-
-            if (help)
-            {
-                await parseResult.InvokeAsync();
-                continue;
-            }
-
-            var inFile = parseResult.CommandResult.GetValue(inputArg);
-            var format = parseResult.GetValue(formatOption);
-            var outputPath = parseResult.GetValue(outputOption);
-
-            var options = new ConverterOptions
-            {
-                InputFile = inFile,
-                OutputFormat = format,
-                OutputPath = outputPath
-            };
-
-            var exitCode = HandleOptions(options);
-            if (exitCode == ExitCode.Error)
-            {
-                continue;
-            }
-
+        if (ValidOptions(options))
+        {
             await HandleConvert(options);
         }
     }
 
-    private static ExitCode HandleOptions(ConverterOptions options)
+    private static RootCommand CreateRootCommand(out Argument<string> inputArg, out Option<string> formatOption,
+        out Option<string> outputOption, out Option<bool> quitOption)
+    {
+        inputArg = new Argument<string>("input")
+        {
+            Arity = ArgumentArity.ExactlyOne,
+            Description = "The input file to convert."
+        };
+
+        formatOption = new Option<string>("-f", "--format")
+        {
+            Description = "Format for the converted output file."
+        };
+
+        outputOption = new Option<string>("-o", "--output")
+        {
+            Description = "Output path for the converted file."
+        };
+
+        quitOption = new Option<bool>("q", "quit")
+        {
+            Description = "Quit the application."
+        };
+
+        var root = new RootCommand
+        {
+            inputArg,
+            formatOption,
+            outputOption,
+            quitOption
+        };
+
+        root.Options.Remove(root.Options.OfType<VersionOption>().FirstOrDefault());
+
+        return root;
+    }
+
+    private static async Task<string> ReadInput()
+    {
+        if (!Console.IsInputRedirected)
+        {
+            await Console.Error.WriteAsync("Type input: ");
+        }
+
+        var input = Console.ReadLine();
+
+        return string.IsNullOrWhiteSpace(input) ? null : input;
+    }
+
+    private static bool ValidOptions(ConverterOptions options)
     {
         if (string.IsNullOrEmpty(options.OutputFormat))
         {
@@ -138,7 +142,7 @@ public static class Program
         if (!VideoFormat.IsSupportedVideoFormat(options.OutputFormat))
         {
             Console.Error.WriteErrorLine("Output format is not supported.");
-            return ExitCode.Error;
+            return false;
         }
 
         if (!string.IsNullOrEmpty(options.InputFile))
@@ -150,7 +154,7 @@ public static class Program
                 if (!validUrl)
                 {
                     Console.Error.WriteErrorLine("Input uri not well formed.");
-                    return ExitCode.Error;
+                    return false;
                 }
             }
 
@@ -158,13 +162,13 @@ public static class Program
             if (inputFormat.Equals(options.OutputFormat, StringComparison.InvariantCulture))
             {
                 Console.Error.WriteErrorLine("Output and input formats are the same.");
-                return ExitCode.Error;
+                return false;
             }
 
             if (!validUrl && !File.Exists(options.InputFile))
             {
                 Console.Error.WriteErrorLine("Input file does not exist.");
-                return ExitCode.Error;
+                return false;
             }
 
         }
@@ -174,7 +178,7 @@ public static class Program
             options.OutputPath = s_defaultOutputDir;
         }
 
-        return ExitCode.OK;
+        return true;
     }
 
     private static async Task HandleConvert(ConverterOptions options)
@@ -206,7 +210,7 @@ public static class Program
         }
         catch (ConversionException ex)
         {
-            await Console.Error.WriteErrorLineAsync($"Error in conversion", ex);
+            await Console.Error.WriteErrorLineAsync("Error in conversion", ex);
         }
     }
 
@@ -237,7 +241,7 @@ public static class Program
         }
         catch (Exception ex)
         {
-            Console.Error.WriteErrorLine($"Error in config", ex);
+            Console.Error.WriteErrorLine("Error in config", ex);
             Console.WriteLine("Press any key to quit");
             Console.ReadKey();
             Environment.Exit((int)ExitCode.Error);
