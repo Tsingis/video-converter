@@ -3,7 +3,6 @@ using System.Text;
 
 namespace E2ETests;
 
-[NotInParallel]
 public class ConsoleTests
 {
     [Test]
