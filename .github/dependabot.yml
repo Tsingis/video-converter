@@ -22,8 +22,8 @@ updates:
           - "Microsoft.Extensions.*"
       ffmpeg:
         patterns:
-          - "Xabe.FFmpeg"
-          - "Xabe.FFmpeg.Downloader"
+          - "FFMpegCore"
+          - "FFMpegCore.*"
   - package-ecosystem: "dotnet-sdk"
     directory: "/"
     schedule:
