@@ -16,6 +16,9 @@ updates:
       timezone: "Europe/Helsinki"
     cooldown:
       default-days: 1
+      exclude:
+        - "Microsoft.*"
+        - "System.CommandLine"
     groups:
       microsoft:
         patterns:
