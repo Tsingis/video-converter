@@ -1,4 +1,5 @@
 **/bin/**
 **/obj/**
+*.csproj.lscache
 /publish
 /ffmpeg
