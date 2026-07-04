@@ -21,7 +21,7 @@
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <ItemGroup>
-    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.27.0.140913" />
+    <GlobalPackageReference Include="SonarAnalyzer.CSharp" Version="10.28.0.143324" />
   </ItemGroup>
   <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('Tests'))">
     <IsPackable>false</IsPackable>
@@ -30,7 +30,7 @@
     <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
     <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
     <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
-    <NoWarn>$(NoWarn);CA1707;CA1034</NoWarn>
+    <NoWarn>$(NoWarn);CA1707;CA1034;S5443</NoWarn>
   </PropertyGroup>
   <ItemGroup Condition="$(MSBuildProjectName.EndsWith('Tests'))">
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
