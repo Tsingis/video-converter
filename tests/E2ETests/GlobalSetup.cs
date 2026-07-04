@@ -32,6 +32,7 @@ public static class GlobalSetup
     {
         var projectDir = FindProject();
         var args = $"run --project \"{projectDir}\" -c Release --no-restore --no-build";
+#pragma warning disable S4036 // OS commands should not rely on PATH resolution
         return new ProcessStartInfo("dotnet", args)
         {
             RedirectStandardInput = true,
@@ -41,12 +42,14 @@ public static class GlobalSetup
             CreateNoWindow = true,
             WorkingDirectory = Directory.GetCurrentDirectory()
         };
+#pragma warning restore S4036 // OS commands should not rely on PATH resolution
     }
 
     private static ProcessStartInfo CreateBuildProcess()
     {
         var projectDir = FindProject();
         var args = $"build \"{projectDir}\" -c Release";
+#pragma warning disable S4036 // OS commands should not rely on PATH resolution
         return new ProcessStartInfo("dotnet", args)
         {
             RedirectStandardInput = true,
@@ -56,6 +59,7 @@ public static class GlobalSetup
             CreateNoWindow = true,
             WorkingDirectory = Directory.GetCurrentDirectory()
         };
+#pragma warning restore S4036 // OS commands should not rely on PATH resolution
     }
 
     private static string FindProject()
