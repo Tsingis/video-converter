@@ -7,6 +7,10 @@ updates:
       day: "sunday"
       time: "21:00"
       timezone: "Europe/Helsinki"
+    groups:
+      codeql:
+        patterns:
+          - "github/codeql-action/*"
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
