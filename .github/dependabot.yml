@@ -35,6 +35,10 @@ updates:
     directory: "/"
     cooldown:
       default-days: 0
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
     schedule:
       interval: "monthly"
       day: "sunday"
