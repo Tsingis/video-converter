@@ -23,6 +23,10 @@ updates:
       exclude:
         - "Microsoft.*"
         - "System.CommandLine"
+    ignore:
+      - dependency-name: "Microsoft.Extensions.*"
+        update-types:
+          - "version-update:semver-major"
     groups:
       microsoft:
         patterns:
