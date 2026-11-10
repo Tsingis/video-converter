@@ -41,7 +41,7 @@ public static class Program
         {
             BinaryFolder = path
         };
-        await FFMpegCore.Extensions.Downloader.FFMpegDownloader.DownloadBinaries(options: ffOptions);
+        await FFMpegCore.Extensions.Downloader.FFMpegDownloader.DownloadBinariesAsync(ffOptions: ffOptions);
     }
 
     private static Dictionary<string, DateTime> GetFilesWithWriteTime(string path)

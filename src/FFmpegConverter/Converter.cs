@@ -41,7 +41,7 @@ public static class Converter
 
         try
         {
-            Action<FFMpegArgumentOptions> outputOptions = outputFormat switch
+            Action<FFMpegOutputOptions> outputOptions = outputFormat switch
             {
                 VideoFormat.Mp4 => o =>
                     o.WithVideoCodec(VideoCodec.LibX264)
